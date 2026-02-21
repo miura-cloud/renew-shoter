@@ -1,10 +1,8 @@
-async function kv(command, ...args) {
-  const url = process.env.KV_REST_API_URL;
+async function kvGet(key) {
+  const base = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  const res = await fetch(`${url}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify([command, ...args]),
+  const res = await fetch(`${base}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${token}` },
   });
   const data = await res.json();
   if (data.error) throw new Error(data.error);
@@ -17,8 +15,8 @@ export default async function handler(req, res) {
   if (!code) return res.status(400).json({ error: "コードが必要です" });
   try {
     const [originalUrl, metaStr] = await Promise.all([
-      kv("GET", `code:${code}`),
-      kv("GET", `meta:${code}`),
+      kvGet(`code:${code}`),
+      kvGet(`meta:${code}`),
     ]);
     if (!originalUrl) return res.status(404).json({ error: "存在しないコードです" });
     const meta = metaStr ? JSON.parse(metaStr) : { createdAt: null, clicks: 0 };

@@ -6,17 +6,33 @@ function generateCode() {
   return code;
 }
 
-async function kv(command, ...args) {
-  const url = process.env.KV_REST_API_URL;
+// Upstash REST API: GETは /{command}/{key}、SETは /{command}/{key}/{value}
+async function kvGet(key) {
+  const base = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  const res = await fetch(`${url}`, {
+  const res = await fetch(`${base}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.result; // null or string
+}
+
+async function kvSet(key, value) {
+  const base = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  const res = await fetch(`${base}/set/${encodeURIComponent(key)}/${encodeURIComponent(value)}`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify([command, ...args]),
+    headers: { Authorization: `Bearer ${token}` },
   });
   const data = await res.json();
   if (data.error) throw new Error(data.error);
   return data.result;
+}
+
+async function kvExists(key) {
+  const val = await kvGet(key);
+  return val !== null;
 }
 
 export default async function handler(req, res) {
@@ -36,7 +52,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const existingCode = await kv("GET", `url:${url}`);
+    const existingCode = await kvGet(`url:${url}`);
     if (existingCode) {
       return res.status(200).json({
         shortUrl: `https://${req.headers.host}/s/${existingCode}`,
@@ -47,15 +63,15 @@ export default async function handler(req, res) {
     let code = null;
     for (let i = 0; i < 5; i++) {
       const c = generateCode();
-      const exists = await kv("EXISTS", `code:${c}`);
+      const exists = await kvExists(`code:${c}`);
       if (!exists) { code = c; break; }
     }
     if (!code) return res.status(500).json({ error: "コード生成失敗" });
 
     await Promise.all([
-      kv("SET", `code:${code}`, url),
-      kv("SET", `url:${url}`, code),
-      kv("SET", `meta:${code}`, JSON.stringify({ createdAt: Date.now(), clicks: 0 })),
+      kvSet(`code:${code}`, url),
+      kvSet(`url:${url}`, code),
+      kvSet(`meta:${code}`, JSON.stringify({ createdAt: Date.now(), clicks: 0 })),
     ]);
 
     return res.status(200).json({
