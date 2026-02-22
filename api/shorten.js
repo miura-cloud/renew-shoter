@@ -2,7 +2,7 @@ const CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 function generateCode() {
   let code = "";
-  for (let i = 0; i < 7; i++) code += CHARS[Math.floor(Math.random() * CHARS.length)];
+  for (let i = 0; i < 5; i++) code += CHARS[Math.floor(Math.random() * CHARS.length)];
   return code;
 }
 
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     const existingCode = await kvGet(`url:${url}`);
     if (existingCode) {
       return res.status(200).json({
-        shortUrl: `https://${req.headers.host}/s/${existingCode}`,
+        shortUrl: `https://${req.headers.host}/${existingCode}`,
         code: existingCode, reused: true,
       });
     }
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     ]);
 
     return res.status(200).json({
-      shortUrl: `https://${req.headers.host}/s/${code}`,
+      shortUrl: `https://${req.headers.host}/${code}`,
       code, reused: false,
     });
   } catch (err) {

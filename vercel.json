@@ -3,6 +3,7 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/s/:code", "destination": "/api/redirect?code=:code" }
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/:code([a-zA-Z0-9]{4,8})", "destination": "/api/redirect?code=:code" }
   ]
 }

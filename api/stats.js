@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const meta = metaStr ? JSON.parse(metaStr) : { createdAt: null, clicks: 0 };
     return res.status(200).json({
       code, originalUrl,
-      shortUrl: `https://${req.headers.host}/s/${code}`,
+      shortUrl: `https://${req.headers.host}/${code}`,
       clicks: meta.clicks || 0,
       createdAt: meta.createdAt ? new Date(meta.createdAt).toISOString() : null,
     });
