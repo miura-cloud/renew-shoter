@@ -127,7 +127,6 @@ export default function App() {
               </div>
               <div>
                 <h1 className="text-white text-lg font-bold tracking-tight">URL短縮 & QR作成</h1>
-                <p className="text-blue-100 text-xs mt-0.5">広告なし・外部依存なし・完全自前</p>
               </div>
             </div>
           </div>
@@ -297,7 +296,7 @@ export default function App() {
 
         {/* Badge */}
         <p className="text-center text-xs text-blue-300/60">
-          広告なし • 外部サービス依存なし • Powered by Vercel KV
+          KURUKURU
         </p>
       </div>
     </div>
