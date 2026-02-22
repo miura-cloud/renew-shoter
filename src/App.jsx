@@ -295,9 +295,7 @@ export default function App() {
         </div>
 
         {/* Badge */}
-        <p className="text-center text-xs text-blue-300/60">
-          KURUKURU
-        </p>
+
       </div>
     </div>
   );
