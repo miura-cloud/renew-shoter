@@ -87,15 +87,22 @@ export default function App() {
     ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(result.shortUrl)}&ecc=H&margin=10`
     : "";
 
-  const downloadQR = (format) => {
-    const apiFormat = format === "jpeg" ? "jpg" : format;
-    const url = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(result.shortUrl)}&ecc=H&margin=10&format=${apiFormat}`;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `qrcode-${result.code}.${format}`;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.click();
+  const downloadQR = async (format) => {
+    try {
+      const res = await fetch(`/api/qr?data=${encodeURIComponent(result.shortUrl)}&format=${format}&size=400`);
+      if (!res.ok) throw new Error("取得失敗");
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `qrcode-${result.code}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      alert("ダウンロードに失敗しました: " + err.message);
+    }
   };
 
   const handleReset = () => {
