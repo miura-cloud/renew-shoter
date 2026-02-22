@@ -87,10 +87,12 @@ export default function App() {
     ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(result.shortUrl)}&ecc=H&margin=10`
     : "";
 
-  const downloadQR = () => {
+  const downloadQR = (format) => {
+    const apiFormat = format === "jpeg" ? "jpg" : format;
+    const url = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(result.shortUrl)}&ecc=H&margin=10&format=${apiFormat}`;
     const a = document.createElement("a");
-    a.href = qrImageUrl + "&format=png";
-    a.download = `qrcode-${result.code}.png`;
+    a.href = url;
+    a.download = `qrcode-${result.code}.${format}`;
     a.target = "_blank";
     a.rel = "noopener noreferrer";
     a.click();
@@ -266,13 +268,18 @@ export default function App() {
                         className="rounded-lg"
                       />
                     </div>
-                    <button
-                      onClick={downloadQR}
-                      className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition-colors border border-gray-200 hover:border-blue-300 bg-white px-5 py-2.5 rounded-xl"
-                    >
-                      <Download size={14} />
-                      QRコードをPNGで保存
-                    </button>
+                    <div className="flex gap-2">
+                      {["png", "svg", "jpeg"].map((fmt) => (
+                        <button
+                          key={fmt}
+                          onClick={() => downloadQR(fmt)}
+                          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-blue-600 transition-colors border border-gray-200 hover:border-blue-300 bg-white px-3 py-2 rounded-xl uppercase font-semibold"
+                        >
+                          <Download size={12} />
+                          {fmt}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
